@@ -29,7 +29,7 @@ resource "azurerm_virtual_machine" "win-server" {
   vm_size = var.srv-vmsize
   tags    = var.default_tags
 
-  delete_os_disk_on_termination   = true
+  delete_os_disk_on_termination    = true
   delete_data_disks_on_termination = true
 
   storage_image_reference {
@@ -53,9 +53,9 @@ resource "azurerm_virtual_machine" "win-server" {
   }
 
   os_profile_windows_config {
-    provision_vm_agent          = true
-    enable_automatic_upgrades   = false
-    timezone                    = var.timezone_id
+    provision_vm_agent        = true
+    enable_automatic_upgrades = false
+    timezone                  = var.timezone_id
   }
 }
 
@@ -63,8 +63,8 @@ resource "azurerm_virtual_machine_extension" "srv-cst-script" {
   count                = (var.numberofpods * var.numberofserver)
   name                 = "${var.rgname}-csesrv-${format("%02d", count.index + 1)}"
   virtual_machine_id   = element(azurerm_virtual_machine.win-server.*.id, count.index)
-  publisher           = "Microsoft.Compute"
-  type                = "CustomScriptExtension"
+  publisher            = "Microsoft.Compute"
+  type                 = "CustomScriptExtension"
   type_handler_version = "1.10"
 
   settings = jsonencode({
@@ -90,8 +90,8 @@ resource "azurerm_virtual_machine_extension" "join-srv-to-domain" {
   count                = (var.numberofpods * var.numberofserver)
   name                 = "${var.rgname}-joinsrv-${format("%02d", count.index + 1)}"
   virtual_machine_id   = element(azurerm_virtual_machine.win-server.*.id, count.index)
-  publisher           = "Microsoft.Compute"
-  type                = "JsonADDomainExtension"
+  publisher            = "Microsoft.Compute"
+  type                 = "JsonADDomainExtension"
   type_handler_version = "1.3"
 
   settings = <<SETTINGS

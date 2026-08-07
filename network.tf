@@ -1,21 +1,21 @@
 resource "azurerm_virtual_network" "vnet" {
-  name                      = "vnet-${var.rgname}"
-  address_space             = ["10.${format("%0d", var.vnetip)}.0.0/16"]
-  location                  = var.region
-  resource_group_name       = var.rgname
-  tags                      = var.default_tags
-  dns_servers               = ["10.101.1.4"]
-  depends_on                = [azurerm_resource_group.rg]
+  name                = "vnet-${var.rgname}"
+  address_space       = ["10.${format("%0d", var.vnetip)}.0.0/16"]
+  location            = var.region
+  resource_group_name = var.rgname
+  tags                = var.default_tags
+  dns_servers         = ["10.101.1.4"]
+  depends_on          = [azurerm_resource_group.rg]
 }
 
 resource "azurerm_subnet" "private_subnet" {
-  count                     = var.numberofpods
-  name                      = "${var.rgname}-private-${format("%02d", count.index + 1)}"
-  resource_group_name       = var.rgname
-  virtual_network_name      = azurerm_virtual_network.vnet.name
-  address_prefixes            = ["10.${format("%0d", var.vnetip)}.${format("%0d", count.index + 10)}.0/24"]
+  count                = var.numberofpods
+  name                 = "${var.rgname}-private-${format("%02d", count.index + 1)}"
+  resource_group_name  = var.rgname
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = ["10.${format("%0d", var.vnetip)}.${format("%0d", count.index + 10)}.0/24"]
   #network_security_group_id = azurerm_network_security_group.pod_nsg.id
-  service_endpoints         = ["Microsoft.Sql", "Microsoft.Storage"]
+  service_endpoints = ["Microsoft.Sql", "Microsoft.Storage"]
 }
 
 resource "azurerm_subnet_network_security_group_association" "nsg-assoc-pod_nsg" {
@@ -32,17 +32,17 @@ resource "azurerm_network_security_group" "pod_nsg" {
 }
 
 resource "azurerm_network_security_rule" "allow_rdp" {
-  name                          = "Allow_RDP"
-  priority                      = 100
-  direction                     = "Inbound"
-  access                        = "Allow"
-  protocol                      = "Tcp"
-  source_port_range             = "*"
-  destination_port_range        = var.friendlyports
-  source_address_prefixes       = ["10.${format("%0d", var.vnetip)}.0.0/16"]
-  destination_address_prefix    = "*"
-  resource_group_name           = var.rgname
-  network_security_group_name   = azurerm_network_security_group.pod_nsg.name
+  name                        = "Allow_RDP"
+  priority                    = 100
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "Tcp"
+  source_port_range           = "*"
+  destination_port_range      = var.friendlyports
+  source_address_prefixes     = ["10.${format("%0d", var.vnetip)}.0.0/16"]
+  destination_address_prefix  = "*"
+  resource_group_name         = var.rgname
+  network_security_group_name = azurerm_network_security_group.pod_nsg.name
 }
 
 data "azurerm_virtual_network" "remoteVN" {
@@ -51,7 +51,7 @@ data "azurerm_virtual_network" "remoteVN" {
 }
 
 output "virtual_network_id" {
-  value = "${data.azurerm_virtual_network.remoteVN.id}"
+  value = data.azurerm_virtual_network.remoteVN.id
 }
 
 data "azurerm_resource_group" "remoteRG" {
@@ -59,10 +59,10 @@ data "azurerm_resource_group" "remoteRG" {
 }
 
 resource "azurerm_virtual_network_peering" "spoke" {
-  name                      = "${var.rgname}-spoke2hub"
-  resource_group_name       = var.rgname
-  virtual_network_name      = azurerm_virtual_network.vnet.name
-  remote_virtual_network_id = "${data.azurerm_virtual_network.remoteVN.id}"
+  name                         = "${var.rgname}-spoke2hub"
+  resource_group_name          = var.rgname
+  virtual_network_name         = azurerm_virtual_network.vnet.name
+  remote_virtual_network_id    = data.azurerm_virtual_network.remoteVN.id
   allow_virtual_network_access = true
   allow_forwarded_traffic      = true
 
@@ -71,10 +71,10 @@ resource "azurerm_virtual_network_peering" "spoke" {
 }
 
 resource "azurerm_virtual_network_peering" "hub" {
-  name                      = "${var.rgname}-hub2spoke"
-  resource_group_name       = "${data.azurerm_resource_group.remoteRG.name}"
-  virtual_network_name      = "${data.azurerm_virtual_network.remoteVN.name}"
-  remote_virtual_network_id = azurerm_virtual_network.vnet.id
+  name                         = "${var.rgname}-hub2spoke"
+  resource_group_name          = data.azurerm_resource_group.remoteRG.name
+  virtual_network_name         = data.azurerm_virtual_network.remoteVN.name
+  remote_virtual_network_id    = azurerm_virtual_network.vnet.id
   allow_virtual_network_access = true
   allow_forwarded_traffic      = true
 
