@@ -57,18 +57,18 @@ variable "vmadmpassword" {
 
 variable "srv-vmsize" {
    type    = string
-   default =   "Standard_D4ads_v5"
+   default = "Standard_D4ads_v5"
 }
 
 variable "clt-vmsize" {
    type    = string
-   default =   "Standard_D4ads_v5"
+   default = "Standard_D4ads_v5"
 }
 
 # number of fileshares per pod
 variable "numberoffileshare" {
-   type   = number
-   default =   "0"
+   type    = number
+   default = 0
 }
 
 # number of servers in a pod
@@ -86,8 +86,39 @@ variable "numberofw11clients" {
 # number of shared servers (shared by all pods, e.g domain controler, file server)
 # change in terraform.tfvars
 variable "numberofsharedserver" {
-  type      = number
-  default =   "0"
+  type    = number
+  default =   0
+}
+
+variable "environment_type" {
+  description = "Chromeleon deployment type"
+  type        = string
+  default     = "Training"
+
+  validation {
+    condition     = contains(["Training", "Validation", "Development"], var.environment_type)
+    error_message = "environment_type must be Training, Validation, or Development."
+  }
+}
+
+variable "timezone_id" {
+  description = "Windows time zone for the VM"
+  type        = string
+  default     = "UTC"
+}
+
+variable "trendmicro_tenant_id" {
+  type      = string
+  sensitive = true
+}
+
+variable "trendmicro_token" {
+  type      = string
+  sensitive = true
+}
+
+variable "trendmicro_policy_id" {
+  type = string
 }
 
 variable "default_tags" {
