@@ -1,5 +1,5 @@
 locals {
-  vm_scripts_release = "v1.0.1"
+  vm_scripts_release = "v1.1.0"
   vm_scripts_base    = "https://raw.githubusercontent.com/carl-guertin-laroche/terraform-vm-scripts/${local.vm_scripts_release}/Scripts"
 }
 
