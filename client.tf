@@ -1,8 +1,3 @@
-locals {
-  vm_scripts_release = "v1.1.1"
-  vm_scripts_base    = "https://raw.githubusercontent.com/carl-guertin-laroche/terraform-vm-scripts/${local.vm_scripts_release}/Scripts"
-}
-
 resource "azurerm_network_interface" "cliprivate" {
   count               = var.numberofpods * var.numberofw11clients
   name                = "${var.rgname}-client-ip-${format("%02d", count.index + 1)}"
